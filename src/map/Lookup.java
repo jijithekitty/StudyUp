@@ -11,7 +11,7 @@ import java.net.URLEncoder;
 import org.json.JSONArray;
 
 public class Lookup {
-	static JSONArray extracted(String query) {
+	static JSONArray queryURL(String query) {
 		JSONArray results = new JSONArray();
 		try {
 			String urlString = "https://nominatim.openstreetmap.org/search?q=" + URLEncoder.encode(query, "UTF-8") + "&format=json";

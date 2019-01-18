@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java"%>
 <%@ page import="map.Lookup" %>
+<%@ page import="map.Location" %>
 <%@ page import="map.Util" %>
 <html>
 <head>
@@ -75,10 +76,10 @@
 	<%
 	String place = request.getParameter("place");
 	if (place != null && !place.isEmpty()) {
-       	String loc = Util.lookupPlace(place);
+       	Location loc = Util.lookupPlace(place);
        	if (loc != null) {
-        	double lat = Double.parseDouble(loc.split("\t")[0]);
-        	double lon = Double.parseDouble(loc.split("\t")[1]); %>
+        	double lat = loc.getLat();
+        	double lon = loc.getLon(); %>
         	<script>gotoLoc(<%=lat%>, <%=lon%>);</script>
        	<%}
        }%>

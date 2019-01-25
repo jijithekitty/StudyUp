@@ -1,4 +1,4 @@
-package map;
+package edu.studyup.map;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,14 +11,19 @@ import java.net.URLEncoder;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import edu.studyup.entity.Location;
+
 public class Lookup {
 <<<<<<< HEAD:src/map/Lookup.java
 	public static String lookupPlace(String query) {
 =======
+<<<<<<< HEAD:src/map/Lookup.java
 <<<<<<< HEAD:src/edu/studyup/map/Lookup.java
 <<<<<<< HEAD:src/map/Lookup.java
 	public static String lookupPlace(String query) {
 =======
+=======
+>>>>>>> c9611a2... Update server:src/edu/studyup/map/Lookup.java
 	public static Location lookupPlace(String query) {
 		JSONArray results = queryURL(query);
 		if (results.isEmpty()) return null;
@@ -42,6 +47,7 @@ public class Lookup {
 	
 	private static JSONArray queryURL(String query) {
 >>>>>>> d6de417... Update client:src/edu/studyup/map/Lookup.java
+<<<<<<< HEAD:src/map/Lookup.java
 =======
 	public static Location lookupPlace(String query) {
 		JSONArray results = queryURL(query);
@@ -56,6 +62,8 @@ public class Lookup {
 	private static JSONArray queryURL(String query) {
 >>>>>>> 78ea704... Update server:src/map/Lookup.java
 >>>>>>> cd87cff... Update client:src/edu/studyup/map/Lookup.java
+=======
+>>>>>>> c9611a2... Update server:src/edu/studyup/map/Lookup.java
 		JSONArray results = new JSONArray();
 		try {
 			String urlString = "https://nominatim.openstreetmap.org/search?q=" + URLEncoder.encode(query, "UTF-8") + "&format=json";

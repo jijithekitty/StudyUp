@@ -1,16 +1,23 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java"%>
+<<<<<<< HEAD
 <%@ page import="map.Lookup" %>
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 <<<<<<< HEAD
+=======
+>>>>>>> c9611a2... Update server
 =======
 <%@ page import="edu.studyup.map.Lookup" %>
 <%@ page import="edu.studyup.entity.Location" %>
 >>>>>>> d6de417... Update client
+<<<<<<< HEAD
 =======
 <%@ page import="map.Location" %>
 >>>>>>> 78ea704... Update server
 >>>>>>> cd87cff... Update client
+=======
+>>>>>>> c9611a2... Update server
 <html>
 <head>
 	<meta name="viewport" content="initial-scale=1, maximum-scale=1">
@@ -88,10 +95,13 @@
        	Location loc = Lookup.lookupPlace(place);
        	if (loc != null) {
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> cd87cff... Update client
+=======
+>>>>>>> c9611a2... Update server
         	double lat = Double.parseDouble(loc.split("\t")[0]);
         	double lon = Double.parseDouble(loc.split("\t")[1]); %>
 =======
@@ -99,6 +109,12 @@
         	double lon = loc.getLon(); %>
 >>>>>>> 78ea704... Update server
         	<script>gotoLoc(<%=lat%>, <%=lon%>);</script>
+=======
+        	double lat = loc.lat;
+        	double lon = loc.lon;
+        	double[] bounds = loc.bounds; %>
+        	<script>gotoLoc(<%=lat%>, <%=lon%>, [<%=bounds[0]%>, <%=bounds[1]%>, <%=bounds[2]%>, <%=bounds[3]%>]);</script>
+>>>>>>> d6de417... Update client
        	<%}
        }%>
 </body>

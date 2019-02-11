@@ -86,18 +86,22 @@ class EventServiceImplTest {
 	//Our written test cases
 	//test 1
 	//assert that string length is less than or equal to 20 characters
-//	@Test
-//	void testEventNameLengthIsLessThanMaximum()throws StudyUpException {
-//		int eventID = 1;
-//		//update event name, should be less than 20 characters
-//		eventServiceImpl.updateEventName(eventID, "Testing");
-//		String test = "";
-//		test = DataStorage.eventData.get(eventID).getName();
-//		assertTrue(test.length() <= 20);
-//	}
+	@Test
+	void testEventNameLengthIsLessThanMaximum()throws StudyUpException {
+		Event event = new Event();
+		event.setEventID(1);
+		event.setDate(new Date());
+		event.setName("Event 1");
+		DataStorage.eventData.put(event.getEventID(), event);
+		
+		//update event name, should be less than 20 characters
+		eventServiceImpl.updateEventName(1, "Testing");
+		assertTrue(DataStorage.eventData.get(1).getName().length() < 20);
+	}
 	
 	//test2 
 	//check that an exception was thrown for a string length exceeding 20 characters
+	//Bug Found, exception wasn't thrown
 	@Test
 	void testUpdateEventNameExceedsMaximum() throws StudyUpException {
 		//test to see if exception is thrown
@@ -133,7 +137,6 @@ class EventServiceImplTest {
 		List<Student> currentStudents = DataStorage.eventData.get(eventID).getStudents();
 		assertNotNull(currentStudents);
 		//check that a student exists in the list
-		System.out.println(currentStudents.get(0));
 		assertNotNull(currentStudents.get(0));
 	}
 	
@@ -141,8 +144,21 @@ class EventServiceImplTest {
 	//get list of active events, assert it is not null
 	@Test
 	void getActiveEvents_GoodCase() throws StudyUpException{
+			
+		//create event
+		Event event = new Event();
+		event.setEventID(1);
+		event.setDate(new Date());
+		event.setName("Event 1");
+	
+		//add event to active events
+		//get list of active events
+		DataStorage.eventData.put(event.getEventID(), event);
 		List<Event> activeEvents = eventServiceImpl.getActiveEvents();
 		assertNotNull(activeEvents);
+		
+		//assert event is contained in active events
+		assertTrue(activeEvents.contains(event));
 	}
 	
 	//test7
@@ -158,7 +174,7 @@ class EventServiceImplTest {
 		int eventID = 2;
 		Event event = new Event();
 		event.setEventID(eventID);
-		event.setDate(new Date(9999999999999L));
+		event.setDate(new Date(9999999999999L)); //creates a date in the future
 		event.setName("Event 2");
 		Location location = new Location(122, 40);
 		event.setLocation(location);
@@ -168,7 +184,7 @@ class EventServiceImplTest {
 		int newEventID = 3;
 		Event eventNew = new Event();
 		eventNew.setEventID(newEventID);
-		eventNew.setDate(new Date(100));
+		eventNew.setDate(new Date(100)); //creates a date in the past, 1960s
 		eventNew.setName("Event 3");
 		Location location2 = new Location(122, 40);
 		eventNew.setLocation(location2);
@@ -194,7 +210,6 @@ class EventServiceImplTest {
 		int eventID = 1;
 		Event event = DataStorage.eventData.get(eventID);
 		List<Student> currentStudents = event.getStudents();
-		int currentStudentList = currentStudents.size();
 		
 		//add new student to list
 		Student student = new Student();
@@ -219,6 +234,7 @@ class EventServiceImplTest {
 	
 	//test9
 	//assert an exception was thrown by adding a student to a non existent event
+	//bug found, exception wasn't thrown
 	@Test
 	void addingStudentToNonExistentEvent() throws StudyUpException{
 		//non existing event id
@@ -264,8 +280,6 @@ class EventServiceImplTest {
 		DataStorage.eventData.put(event.getEventID(), event);
 		
 		//assert no students are present
-		System.out.println("is students null");
-		System.out.println(event.getStudents());
 		assertNull(event.getStudents());
 		
 		//Create New Student

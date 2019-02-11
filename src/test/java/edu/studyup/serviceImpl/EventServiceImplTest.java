@@ -114,7 +114,6 @@ class EventServiceImplTest {
 	void testUpdateEventNameExceedsMaximum() throws StudyUpException {
 		//test to see if exception is thrown
 		int eventID = 1;
-		//BUG, EXCEPTION WASN'T THROWN
 		Assertions.assertThrows(StudyUpException.class, () -> {
 			eventServiceImpl.updateEventName(eventID, "Very Long Event Name That Should Throw An Error For Being Too Long");
 		});
@@ -128,6 +127,7 @@ class EventServiceImplTest {
 		int eventID = 1;
 		
 		//check if an exception is thrown for empty name for event
+		//BUG FOUND, allows event name to be an empty string, exception should be thrown
 		Assertions.assertThrows(StudyUpException.class, () -> {
 			eventServiceImpl.updateEventName(eventID, "");
 		});	
@@ -287,7 +287,7 @@ class EventServiceImplTest {
 	
 	//add same student to same event multiple times
 	@Test
-	void addStudentRepeatedToEvent() throws StudyUpException{
+	void addSameStudentToEvent_BadCase() throws StudyUpException{
 		int eventID = 1;
 		Event event = DataStorage.eventData.get(eventID);
 		
@@ -304,26 +304,14 @@ class EventServiceImplTest {
 		assertNotNull(student.getEmail());
 		assertNotNull(student.getId());
 		
-		//add student to event, ensure student list is larger than previous student list
+		//add student to event
 		event = eventServiceImpl.addStudentToEvent(student, eventID);
 		
 		//add student again
-		event = eventServiceImpl.addStudentToEvent(student, eventID);
-		List<Student> newStudents = event.getStudents();
-		
-		//check how many times same student is in student list
-		int sameStudentCount = 0;
-		for(int i = 0; i< newStudents.size(); i++) {
-			if(newStudents.get(i) == student) {
-				sameStudentCount += 1;
-			}
-		}
-				
-		//if more than one occurrence of student exists, throw an error
-		if(sameStudentCount > 1) {
-			throw new StudyUpException("Same student able to be added repeatedly to same event");
-		}
-		
+		//assertion should be thrown for adding same student to event
+		Assertions.assertThrows(StudyUpException.class, () -> {
+			eventServiceImpl.addStudentToEvent(student,eventID);
+		});
 	}
 	
 	//delete student based on ID, assert the student deleted is null

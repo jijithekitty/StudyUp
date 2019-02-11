@@ -2,6 +2,12 @@ package edu.studyup.serviceImpl;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+//ECS 161 HW 2
+//Partners:
+//Alex Hong 
+//Jenny Nguyen
+
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -112,6 +118,7 @@ class EventServiceImplTest {
 	
 	//test4
 	//get an events date and assert it is not null
+	//if it is not null, the date for the event exists
 	@Test
 	void getDateOfEvent_GoodCase() throws StudyUpException{
 		int eventID = 1;
@@ -125,6 +132,9 @@ class EventServiceImplTest {
 		int eventID = 1;
 		List<Student> currentStudents = DataStorage.eventData.get(eventID).getStudents();
 		assertNotNull(currentStudents);
+		//check that a student exists in the list
+		System.out.println(currentStudents.get(0));
+		assertNotNull(currentStudents.get(0));
 	}
 	
 	//test6
@@ -144,20 +154,35 @@ class EventServiceImplTest {
 		assertNotNull(pastEvents);
 		
 		//create past event
-		//Create Event with date in the past
+		//Create Event with date in the future
 		int eventID = 2;
 		Event event = new Event();
 		event.setEventID(eventID);
-		event.setDate(new Date(100));
+		event.setDate(new Date(9999999999999L));
 		event.setName("Event 2");
 		Location location = new Location(122, 40);
 		event.setLocation(location);
 		DataStorage.eventData.put(event.getEventID(), event);
 		
+		//create event in the past
+		int newEventID = 3;
+		Event eventNew = new Event();
+		eventNew.setEventID(newEventID);
+		eventNew.setDate(new Date(100));
+		eventNew.setName("Event 3");
+		Location location2 = new Location(122, 40);
+		eventNew.setLocation(location2);
+		DataStorage.eventData.put(eventNew.getEventID(), eventNew);
+		
 		//get past events, assert not empty
-		pastEvents = eventServiceImpl.getPastEvents();	
+		pastEvents = eventServiceImpl.getPastEvents();
 		assertNotNull(pastEvents);
-		assertNotNull(DataStorage.eventData.get(eventID).getDate());
+		
+		//make sure event in the past exists in pastEvents
+		assertTrue(pastEvents.contains(eventNew));
+		
+		//make sure the event in the future is not in the pastEvents list
+		assertFalse(pastEvents.contains(event));
 		
 	}
 	
@@ -187,8 +212,9 @@ class EventServiceImplTest {
 		//add student to event, ensure student list is larger than previous student list
 		event = eventServiceImpl.addStudentToEvent(student, eventID);
 		List<Student> newStudents = event.getStudents();
-		int newStudentListSize = newStudents.size();
-		assertTrue(currentStudentList < newStudentListSize, "true");
+		
+		//make sure student added exists in student list
+		assertTrue(newStudents.contains(student));
 	}
 	
 	//test9
@@ -205,7 +231,7 @@ class EventServiceImplTest {
 		student.setId(2);
 		
 		//assert an exception is thrown
-		//BUG EXCEPTION WASN'T THROWN
+		//BUG FOUND, EXCEPTION WASN'T THROWN
 		Assertions.assertThrows(StudyUpException.class, () -> {
 			eventServiceImpl.addStudentToEvent(student, eventID);
 		 });
@@ -218,6 +244,8 @@ class EventServiceImplTest {
 		int eventID = 1;
 		Event event = eventServiceImpl.deleteEvent(eventID);
 		assertNull(DataStorage.eventData.get(eventID));
+		//ensure event deleted is not present, false
+		assertFalse(eventServiceImpl.getActiveEvents().contains(event));
 	}
 	
 	//test 11
@@ -251,7 +279,7 @@ class EventServiceImplTest {
 		//add student, assert student list is not null after adding
 		event = eventServiceImpl.addStudentToEvent(student, eventID);
 		assertNotNull(event.getStudents());
+		assertTrue(event.getStudents().contains(student));
 	}
 	
-
 }

@@ -80,15 +80,15 @@ class EventServiceImplTest {
 	//Our written test cases
 	//test 1
 	//assert that string length is less than or equal to 20 characters
-	@Test
-	void testEventNameLengthIsLessThanMaximum()throws StudyUpException {
-		int eventID = 1;
-		//update event name, should be less than 20 characters
-		eventServiceImpl.updateEventName(eventID, "Testing");
-		String test = "";
-		test = DataStorage.eventData.get(eventID).getName();
-		assertTrue(test.length() <= 20);
-	}
+//	@Test
+//	void testEventNameLengthIsLessThanMaximum()throws StudyUpException {
+//		int eventID = 1;
+//		//update event name, should be less than 20 characters
+//		eventServiceImpl.updateEventName(eventID, "Testing");
+//		String test = "";
+//		test = DataStorage.eventData.get(eventID).getName();
+//		assertTrue(test.length() <= 20);
+//	}
 	
 	//test2 
 	//check that an exception was thrown for a string length exceeding 20 characters
@@ -96,6 +96,7 @@ class EventServiceImplTest {
 	void testUpdateEventNameExceedsMaximum() throws StudyUpException {
 		//test to see if exception is thrown
 		int eventID = 1;
+		//BUG, EXCEPTION WASN'T THROWN
 		Assertions.assertThrows(StudyUpException.class, () -> {
 			eventServiceImpl.updateEventName(eventID, "Very Long Event Name That Should Throw An Error For Being Too Long");
 		});
@@ -187,7 +188,7 @@ class EventServiceImplTest {
 		event = eventServiceImpl.addStudentToEvent(student, eventID);
 		List<Student> newStudents = event.getStudents();
 		int newStudentListSize = newStudents.size();
-		assertTrue(currentStudentList < newStudentListSize);
+		assertTrue(currentStudentList < newStudentListSize, "true");
 	}
 	
 	//test9
@@ -204,6 +205,7 @@ class EventServiceImplTest {
 		student.setId(2);
 		
 		//assert an exception is thrown
+		//BUG EXCEPTION WASN'T THROWN
 		Assertions.assertThrows(StudyUpException.class, () -> {
 			eventServiceImpl.addStudentToEvent(student, eventID);
 		 });

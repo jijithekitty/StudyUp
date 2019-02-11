@@ -58,8 +58,18 @@ class EventServiceImplTest {
 		List<Student> eventStudents = new ArrayList<>();
 		eventStudents.add(student);
 		event.setStudents(eventStudents);
+		DataStorage.eventData.put(event.getEventID(), event);		
+
 		
-		DataStorage.eventData.put(event.getEventID(), event);
+		//create event2
+		//future data
+		Event eventFuture = new Event();
+		eventFuture.setEventID(2);
+		eventFuture.setDate(new Date(9999999999999L)); //creates a date in the future
+		eventFuture.setName("Event 2");
+		Location location2 = new Location(122, 40);
+		eventFuture.setLocation(location2);
+		DataStorage.eventData.put(eventFuture.getEventID(), eventFuture);		
 	}
 
 	@AfterEach
@@ -76,7 +86,7 @@ class EventServiceImplTest {
 	
 	
 	@Test
-	void testUpdateEvent_WrongEventID_badCase() {
+	void testUpdateEvent_WrongEventID_badCase() throws StudyUpException{
 		int eventID = 3;
 		Assertions.assertThrows(StudyUpException.class, () -> {
 			eventServiceImpl.updateEventName(eventID, "Renamed Event 3");
@@ -84,7 +94,6 @@ class EventServiceImplTest {
 	}
 	
 	//Our written test cases
-	//test 1
 	//assert that string length is less than or equal to 20 characters
 	@Test
 	void testEventNameLengthIsLessThanMaximum()throws StudyUpException {
@@ -99,7 +108,6 @@ class EventServiceImplTest {
 		assertTrue(DataStorage.eventData.get(1).getName().length() < 20);
 	}
 	
-	//test2 
 	//check that an exception was thrown for a string length exceeding 20 characters
 	//Bug Found, exception wasn't thrown
 	@Test
@@ -112,7 +120,19 @@ class EventServiceImplTest {
 		});
 	}
 	
-	//test3
+	//Test that name shouldn't be an empty string
+	//All events should have a name, test to see if empty string proceeds
+	@Test
+	void testUpdateEventEmptyString() throws StudyUpException{
+		//test to see if exception is thrown
+		int eventID = 1;
+		
+		//check if an exception is thrown for empty name for event
+		Assertions.assertThrows(StudyUpException.class, () -> {
+			eventServiceImpl.updateEventName(eventID, "");
+		});	
+	}
+	
 	//get an events location and assert it is not null
 	@Test
 	void getLocationOfAnEvent_GoodCase() throws StudyUpException{
@@ -120,7 +140,6 @@ class EventServiceImplTest {
 		assertNotNull(DataStorage.eventData.get(eventID).getLocation());
 	}
 	
-	//test4
 	//get an events date and assert it is not null
 	//if it is not null, the date for the event exists
 	@Test
@@ -129,7 +148,6 @@ class EventServiceImplTest {
 		assertNotNull(DataStorage.eventData.get(eventID).getDate());
 	}
 	
-	//test5
 	//get a list of students for an event, assert it is not null
 	@Test
 	void getListOfStudents_GoodCase() throws StudyUpException{
@@ -140,7 +158,6 @@ class EventServiceImplTest {
 		assertNotNull(currentStudents.get(0));
 	}
 	
-	//test6
 	//get list of active events, assert it is not null
 	@Test
 	void getActiveEvents_GoodCase() throws StudyUpException{
@@ -161,7 +178,6 @@ class EventServiceImplTest {
 		assertTrue(activeEvents.contains(event));
 	}
 	
-	//test7
 	//get list of past events assert it is not null
 	@Test
 	void getPastEvents_GoodCase() throws StudyUpException{
@@ -172,37 +188,54 @@ class EventServiceImplTest {
 		//create past event
 		//Create Event with date in the future
 		int eventID = 2;
-		Event event = new Event();
-		event.setEventID(eventID);
-		event.setDate(new Date(9999999999999L)); //creates a date in the future
-		event.setName("Event 2");
-		Location location = new Location(122, 40);
-		event.setLocation(location);
-		DataStorage.eventData.put(event.getEventID(), event);
-		
+	
 		//create event in the past
 		int newEventID = 3;
-		Event eventNew = new Event();
-		eventNew.setEventID(newEventID);
-		eventNew.setDate(new Date(100)); //creates a date in the past, 1960s
-		eventNew.setName("Event 3");
+		Event eventPast = new Event();
+		eventPast.setEventID(newEventID);
+		eventPast.setDate(new Date(100)); //creates a date in the past, 1960s
+		eventPast.setName("Event 3");
 		Location location2 = new Location(122, 40);
-		eventNew.setLocation(location2);
-		DataStorage.eventData.put(eventNew.getEventID(), eventNew);
+		eventPast.setLocation(location2);
+		DataStorage.eventData.put(eventPast.getEventID(), eventPast);
 		
 		//get past events, assert not empty
 		pastEvents = eventServiceImpl.getPastEvents();
 		assertNotNull(pastEvents);
 		
 		//make sure event in the past exists in pastEvents
-		assertTrue(pastEvents.contains(eventNew));
+		assertTrue(pastEvents.contains(eventPast));
 		
 		//make sure the event in the future is not in the pastEvents list
-		assertFalse(pastEvents.contains(event));
+		assertFalse(pastEvents.contains(DataStorage.eventData.get(eventID)));
 		
 	}
 	
-	//test8
+	@Test
+	void compareActiveToPastEvents() {
+		//get current list of past events
+		List<Event> pastEvents = new ArrayList<>();
+		pastEvents = eventServiceImpl.getPastEvents();	
+		
+		List<Event> activeEvents = new ArrayList<>();
+		activeEvents = eventServiceImpl.getActiveEvents();
+		
+		assertNotEquals(pastEvents, activeEvents);
+	}
+	
+	@Test
+	void checkingPastEvents(){
+		int eventID = 2;
+		List<Event> pastEvents = new ArrayList<>();
+		pastEvents = eventServiceImpl.getPastEvents();	
+		List<Event> newEvents = new ArrayList<>();
+		newEvents.add(DataStorage.eventData.get(eventID));
+		
+		//check to make sure past and active events are not the same list
+		assertNotEquals(pastEvents, newEvents);
+	}
+
+	
 	//add student to an event list, assert student was inserted by comparing lengths
 	//new length of student list from getStudents() should be larger
 	@Test
@@ -232,7 +265,6 @@ class EventServiceImplTest {
 		assertTrue(newStudents.contains(student));
 	}
 	
-	//test9
 	//assert an exception was thrown by adding a student to a non existent event
 	//bug found, exception wasn't thrown
 	@Test
@@ -253,7 +285,47 @@ class EventServiceImplTest {
 		 });
 	}
 	
-	//test 10
+	//add same student to same event multiple times
+	@Test
+	void addStudentRepeatedToEvent() throws StudyUpException{
+		int eventID = 1;
+		Event event = DataStorage.eventData.get(eventID);
+		
+		//add new student to list
+		Student student = new Student();
+		student.setFirstName("John");
+		student.setLastName("Smith");
+		student.setEmail("johnsmith123@gmail.com");
+		student.setId(2);
+		
+		//test creating student as well
+		assertNotNull(student.getFirstName());
+		assertNotNull(student.getLastName());
+		assertNotNull(student.getEmail());
+		assertNotNull(student.getId());
+		
+		//add student to event, ensure student list is larger than previous student list
+		event = eventServiceImpl.addStudentToEvent(student, eventID);
+		
+		//add student again
+		event = eventServiceImpl.addStudentToEvent(student, eventID);
+		List<Student> newStudents = event.getStudents();
+		
+		//check how many times same student is in student list
+		int sameStudentCount = 0;
+		for(int i = 0; i< newStudents.size(); i++) {
+			if(newStudents.get(i) == student) {
+				sameStudentCount += 1;
+			}
+		}
+				
+		//if more than one occurrence of student exists, throw an error
+		if(sameStudentCount > 1) {
+			throw new StudyUpException("Same student able to be added repeatedly to same event");
+		}
+		
+	}
+	
 	//delete student based on ID, assert the student deleted is null
 	@Test
 	void deleteEvent_GoodCase() throws StudyUpException{
@@ -264,7 +336,6 @@ class EventServiceImplTest {
 		assertFalse(eventServiceImpl.getActiveEvents().contains(event));
 	}
 	
-	//test 11
 	//add student to an event with no students currently added
 	@Test
 	void addStudentWhenStudentListIsEmpty() throws StudyUpException{

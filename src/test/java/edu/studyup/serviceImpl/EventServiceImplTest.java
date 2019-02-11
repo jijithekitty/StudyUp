@@ -105,11 +105,9 @@ class EventServiceImplTest {
 		
 		//update event name, should be less than 20 characters
 		eventServiceImpl.updateEventName(1, "Testing");
-		assertTrue(DataStorage.eventData.get(1).getName().length() < 20);
 	}
 	
 	//check that an exception was thrown for a string length exceeding 20 characters
-	//Bug Found, exception wasn't thrown
 	@Test
 	void testUpdateEventNameExceedsMaximum() throws StudyUpException {
 		//test to see if exception is thrown
@@ -119,18 +117,16 @@ class EventServiceImplTest {
 		});
 	}
 	
-	//Test that name shouldn't be an empty string
-	//All events should have a name, test to see if empty string proceeds
+	//testing event name to be maximum length
+	//bug found, exception should be thrown for trying to set empty string
 	@Test
-	void testUpdateEventEmptyString() throws StudyUpException{
+	void testUpdateEventNameLengthIsTwenty() throws StudyUpException{
 		//test to see if exception is thrown
 		int eventID = 1;
 		
 		//check if an exception is thrown for empty name for event
-		//BUG FOUND, allows event name to be an empty string, exception should be thrown
-		Assertions.assertThrows(StudyUpException.class, () -> {
-			eventServiceImpl.updateEventName(eventID, "");
-		});	
+		//BUG FOUND, maximum event name is 20 characters, but exception is thrown for length at 20
+		eventServiceImpl.updateEventName(eventID, "abcdefghijklmnopqrst");
 	}
 	
 	//get an events location and assert it is not null
@@ -152,10 +148,23 @@ class EventServiceImplTest {
 	@Test
 	void getListOfStudents_GoodCase() throws StudyUpException{
 		int eventID = 1;
+		
+		//create student, check student exists in student list
+		Student student = new Student();
+		student.setFirstName("John");
+		student.setLastName("Doe");
+		student.setEmail("JohnDoe@email.com");
+		student.setId(1);
+		
+		//add student to list
+		eventServiceImpl.addStudentToEvent(student, eventID);
+		
+		//get list of current students
 		List<Student> currentStudents = DataStorage.eventData.get(eventID).getStudents();
 		assertNotNull(currentStudents);
+		
 		//check that a student exists in the list
-		assertNotNull(currentStudents.get(0));
+		assertTrue(currentStudents.contains(student));
 	}
 	
 	//get list of active events, assert it is not null
@@ -177,6 +186,43 @@ class EventServiceImplTest {
 		//assert event is contained in active events
 		assertTrue(activeEvents.contains(event));
 	}
+	
+	//check to see future date is in active event
+	@Test 
+	void checkActiveEventsHasFutureDate() throws StudyUpException{
+		int eventID = 2;
+		Event futureEvent = DataStorage.eventData.get(eventID);
+		System.out.println(futureEvent);
+		List <Event> activeEvents = eventServiceImpl.getActiveEvents();
+		assertTrue(activeEvents.contains(futureEvent));
+	}
+	
+	//check if active event has past date
+	//bug found, active event contains past date
+	@Test
+	void checkActiveEventsForPastDate() throws StudyUpException {
+		Event pastEvent = new Event();
+		pastEvent.setEventID(1);
+		pastEvent.setDate(new Date(100));
+		pastEvent.setName("Past Event");
+		System.out.println(pastEvent.getDate());
+		
+		DataStorage.eventData.put(pastEvent.getEventID(), pastEvent);
+		
+		//get list of active events
+		//check to see if past date is present in active events list 
+		List<Event> activeEvents = eventServiceImpl.getActiveEvents();
+		
+		//check that there are no past events in active events list
+		for(int i = 0; i < activeEvents.size(); i++) {
+			System.out.println(activeEvents.get(i).getDate());
+		}
+		
+		//bug found, past event was found in active event
+		assertFalse(activeEvents.contains(pastEvent));
+	}
+	
+	
 	
 	//get list of past events assert it is not null
 	@Test
@@ -208,41 +254,14 @@ class EventServiceImplTest {
 		
 		//make sure the event in the future is not in the pastEvents list
 		assertFalse(pastEvents.contains(DataStorage.eventData.get(eventID)));
-		
 	}
-	
-	@Test
-	void compareActiveToPastEvents() {
-		//get current list of past events
-		List<Event> pastEvents = new ArrayList<>();
-		pastEvents = eventServiceImpl.getPastEvents();	
 		
-		List<Event> activeEvents = new ArrayList<>();
-		activeEvents = eventServiceImpl.getActiveEvents();
-		
-		assertNotEquals(pastEvents, activeEvents);
-	}
-	
-	@Test
-	void checkingPastEvents(){
-		int eventID = 2;
-		List<Event> pastEvents = new ArrayList<>();
-		pastEvents = eventServiceImpl.getPastEvents();	
-		List<Event> newEvents = new ArrayList<>();
-		newEvents.add(DataStorage.eventData.get(eventID));
-		
-		//check to make sure past and active events are not the same list
-		assertNotEquals(pastEvents, newEvents);
-	}
-
-	
 	//add student to an event list, assert student was inserted by comparing lengths
 	//new length of student list from getStudents() should be larger
 	@Test
 	void addStudentToEvent_GoodCase() throws StudyUpException{
 		int eventID = 1;
 		Event event = DataStorage.eventData.get(eventID);
-		List<Student> currentStudents = event.getStudents();
 		
 		//add new student to list
 		Student student = new Student();
@@ -266,11 +285,11 @@ class EventServiceImplTest {
 	}
 	
 	//assert an exception was thrown by adding a student to a non existent event
-	//bug found, exception wasn't thrown
 	@Test
 	void addingStudentToNonExistentEvent() throws StudyUpException{
 		//non existing event id
 		int eventID = 101;
+		
 		//add new student to list
 		Student student = new Student();
 		student.setFirstName("John");
@@ -279,13 +298,13 @@ class EventServiceImplTest {
 		student.setId(2);
 		
 		//assert an exception is thrown
-		//BUG FOUND, EXCEPTION WASN'T THROWN
 		Assertions.assertThrows(StudyUpException.class, () -> {
 			eventServiceImpl.addStudentToEvent(student, eventID);
 		 });
 	}
 	
 	//add same student to same event multiple times
+	//bug found, student shouldn't able to be added again to an event if already added
 	@Test
 	void addSameStudentToEvent_BadCase() throws StudyUpException{
 		int eventID = 1;
@@ -309,6 +328,8 @@ class EventServiceImplTest {
 		
 		//add student again
 		//assertion should be thrown for adding same student to event
+		//bug found, doesn't check if student already exists in list
+		//able to add same student to an event multiple times
 		Assertions.assertThrows(StudyUpException.class, () -> {
 			eventServiceImpl.addStudentToEvent(student,eventID);
 		});

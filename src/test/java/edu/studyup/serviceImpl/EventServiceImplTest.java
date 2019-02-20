@@ -375,3 +375,4 @@ class EventServiceImplTest {
 		assertNotNull(event.getStudents());
 		assertTrue(event.getStudents().contains(student));
 	}
+}

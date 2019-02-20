@@ -34,10 +34,19 @@ public class EventServiceImpl implements EventService {
 		Map<Integer, Event> eventData = DataStorage.eventData;
 		List<Event> activeEvents = new ArrayList<>();
 		
-		for (Integer key : eventData.keySet()) {
-			Event ithEvent= eventData.get(key);
+		//bug fix
+		//referenced from https://stackoverflow.com/questions/24619346/findbugs-warning-inefficient-use-of-keyset-iterator
+		
+		for(Map.Entry<Integer, Event> key: eventData.entrySet()) {
+			Event ithEvent= key.getValue();
 			activeEvents.add(ithEvent);
 		}
+		
+		//old code
+//		for (Integer key : eventData.keySet()) {
+//			Event ithEvent= eventData.get(key);
+//			activeEvents.add(ithEvent);
+//		}
 		return activeEvents;
 	}
 
@@ -46,13 +55,19 @@ public class EventServiceImpl implements EventService {
 		Map<Integer, Event> eventData = DataStorage.eventData;
 		List<Event> pastEvents = new ArrayList<>();
 		
-		for (Integer key : eventData.keySet()) {
-			Event ithEvent= eventData.get(key);
-			// Checks if an event date is before today, if yes, then add to the past event list.
-			if(ithEvent.getDate().before(new Date())) {
-				pastEvents.add(ithEvent);
-			}
+		for(Map.Entry<Integer, Event> key: eventData.entrySet()) {
+			Event ithEvent= key.getValue();
+			pastEvents.add(ithEvent);
 		}
+		
+		//old code
+//		for (Integer key : eventData.keySet()) {
+//			Event ithEvent= eventData.get(key);
+//			// Checks if an event date is before today, if yes, then add to the past event list.
+//			if(ithEvent.getDate().before(new Date())) {
+//				pastEvents.add(ithEvent);
+//			}
+//		}
 		return pastEvents;
 	}
 

@@ -50,6 +50,10 @@ public class Event {
 	}
 
 	public void setDate(Date date) {
+		extracted(date);
+	}
+
+	private void extracted(Date date) {
 		this.date = date;
 	}
 
